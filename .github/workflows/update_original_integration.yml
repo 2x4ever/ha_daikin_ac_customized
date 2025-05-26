@@ -22,12 +22,20 @@ jobs:
       with:
         repository: home-assistant/core
         path: './ha'
+        ref: 'master'
     - name: Move daikin folder
       run: |
           mv ha/homeassistant/components/daikin/ custom_components/
           rm -r custom_components/daikin_custom
           mv custom_components/daikin custom_components/daikin_custom
-          
+          cat ha/pyproject.toml | grep -Eo '^version = "[^"]+"' | tr -d ' "' | cut -f2 -d '=' > custom_components/daikin_custom/ha_version.txt
+          cat custom_components/daikin_custom/manifest.json | jq '. += {"version":"'$(cat custom_components/daikin_custom/ha_version.txt)'"}' | jq -MRsr 'gsub("\n   +";"")|gsub("\n  ]";"]")' > custom_components/daikin_custom/new_manifest.json
+          if [ $? -eq 0 ]; then
+            mv custom_components/daikin_custom/new_manifest.json custom_components/daikin_custom/manifest.json
+          else
+            echo "Failed to patch manifest.json with ha version"
+            exit -1
+          fi
     - name: push
       run: |
           git config user.name github-actions
