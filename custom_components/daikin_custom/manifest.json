@@ -9,6 +9,6 @@
   "loggers": ["pydaikin"],
   "requirements": ["pydaikin==2.18.4"],
   "zeroconf": ["_dkapi._tcp.local."],
-  "version": "2026.8.1"
+  "version": "2026.8.2"
 }
 
